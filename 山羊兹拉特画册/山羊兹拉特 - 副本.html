@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>山羊兹拉特 · 绘本</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Serif SC', 'Songti SC', 'SimSun', serif;
+    background: #2a2018;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #3d2b1f;
+    overflow-x: hidden;
+  }
+
+  /* ===== Book Container ===== */
+  #book-container {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ===== Page ===== */
+  .page {
+    display: none;
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+    animation: fadeIn 0.6s ease;
+  }
+  .page.active { display: flex; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ===== Illustration ===== */
+  .illustration {
+    width: 100%;
+    max-width: 800px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    border: 6px solid #f5ebe0;
+  }
+  .illustration img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* ===== Text Area ===== */
+  .story-text {
+    max-width: 680px;
+    margin-top: 24px;
+    padding: 20px 28px;
+    background: #f5ebe0;
+    border-radius: 10px;
+    font-size: 17px;
+    line-height: 2;
+    text-align: justify;
+    color: #4a3520;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Cover page special styling */
+  .cover-page .story-text {
+    background: transparent;
+    box-shadow: none;
+    text-align: center;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .cover-page .book-title {
+    font-size: 42px;
+    font-weight: 700;
+    color: #f5ebe0;
+    letter-spacing: 8px;
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+  }
+  .cover-page .book-author {
+    font-size: 18px;
+    color: #d4c4a8;
+    letter-spacing: 4px;
+  }
+  .cover-page .illustration {
+    border-color: #8a7560;
+  }
+
+  /* ===== Page Number ===== */
+  .page-number {
+    margin-top: 16px;
+    font-size: 13px;
+    color: #8a7560;
+    letter-spacing: 2px;
+  }
+
+  /* ===== Navigation ===== */
+  #nav-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(42,32,24,0.95);
+    backdrop-filter: blur(8px);
+    padding: 14px 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    z-index: 100;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .nav-btn {
+    background: #8a7560;
+    color: #fff;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    font-family: 'Noto Serif SC', serif;
+    transition: all 0.2s;
+    letter-spacing: 2px;
+  }
+  .nav-btn:hover:not(:disabled) {
+    background: #a89178;
+    transform: translateY(-1px);
+  }
+  .nav-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  #page-counter {
+    color: #d4c4a8;
+    font-size: 15px;
+    min-width: 80px;
+    text-align: center;
+    letter-spacing: 1px;
+  }
+
+  /* ===== Progress bar ===== */
+  #progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #c9a96e, #e8d5b7);
+    width: 0%;
+    transition: width 0.3s ease;
+    z-index: 101;
+  }
+
+  /* ===== Chapter Label ===== */
+  .chapter-label {
+    margin-top: 10px;
+    font-size: 13px;
+    color: #a89178;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  /* ===== Hint ===== */
+  .hint {
+    color: #6b5a48;
+    font-size: 12px;
+    margin-top: 8px;
+    letter-spacing: 1px;
+  }
+
+  @media (max-width: 600px) {
+    .story-text { font-size: 15px; padding: 16px 18px; }
+    .cover-page .book-title { font-size: 30px; }
+    .nav-btn { padding: 8px 16px; font-size: 14px; }
+    #page-counter { font-size: 13px; min-width: 60px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<div id="book-container">
+
+  <!-- P1: Cover -->
+  <div class="page active cover-page" data-page="1">
+    <div class="illustration"><img src="p01.jpg" alt="封面"></div>
+    <div class="story-text">
+      <div class="book-title">山羊兹拉特</div>
+      <div class="book-author">[美] 艾萨克·巴什维斯·辛格</div>
+      <div class="hint">— 使用 ← → 翻页 —</div>
+    </div>
+  </div>
+
+  <!-- P2 -->
+  <div class="page" data-page="2">
+    <div class="illustration"><img src="p02.jpg" alt="暖冬村庄"></div>
+    <div class="chapter-label">第一章 · 温馨的困境</div>
+    <div class="story-text">往年光明节，从村里到镇上的路总是冰雪覆盖。但是这年冬天天气却很暖和，光明节快要到了，还没有下过雪。大部分时间天气晴朗，农民们担心，由于干旱，冬粮收成准不会好。</div>
+    <div class="page-number">— 1 —</div>
+  </div>
+
+  <!-- P3 -->
+  <div class="page" data-page="3">
+    <div class="illustration"><img src="p03.jpg" alt="卖羊决定"></div>
+    <div class="chapter-label">第一章 · 温馨的困境</div>
+    <div class="story-text">对硝皮匠勒文来说，这年更是个坏年头，他犹豫了好久，终于决定卖掉山羊兹拉特。这只山羊已经老了，挤不出多少奶了。阿隆的母亲听说要卖掉山羊，伤心得哭了。阿隆的妹妹安娜和密丽安也放声大哭。</div>
+    <div class="page-number">— 2 —</div>
+  </div>
+
+  <!-- P4 -->
+  <div class="page" data-page="4">
+    <div class="illustration"><img src="p04.jpg" alt="信任特写"></div>
+    <div class="chapter-label">第一章 · 温馨的困境</div>
+    <div class="story-text">家里人和山羊依依不舍地告别。山羊舔着勒文的手，摇着它那小小的白胡子。兹拉特一向信任人类。它知道，人们总是喂它东西吃，从来没有伤害过它。</div>
+    <div class="page-number">— 3 —</div>
+  </div>
+
+  <!-- P5 -->
+  <div class="page" data-page="5">
+    <div class="illustration"><img src="p05.jpg" alt="踏上陌生路"></div>
+    <div class="chapter-label">第二章 · 离别之路</div>
+    <div class="story-text">阿隆把羊赶上通往镇子的大道时，山羊似乎有点惊奇，因为以前从来没有朝那个方向走过。山羊回过头来诧异地瞧着阿隆，好像在问："你要把我赶到哪里去呀？"</div>
+    <div class="page-number">— 4 —</div>
+  </div>
+
+  <!-- P6 -->
+  <div class="page" data-page="6">
+    <div class="illustration"><img src="p06.jpg" alt="乌云"></div>
+    <div class="chapter-label">第三章 · 暴风雪</div>
+    <div class="story-text">阿隆离开村子时还出着太阳，可是突然间天气变了。东边天空出现了一大片乌云，那云微带蓝色。乌云迅速布满天空，一阵冷风随之而起。</div>
+    <div class="page-number">— 5 —</div>
+  </div>
+
+  <!-- P7 -->
+  <div class="page" data-page="7">
+    <div class="illustration"><img src="p07.jpg" alt="冰雹"></div>
+    <div class="chapter-label">第三章 · 暴风雪</div>
+    <div class="story-text">起初，看样子像是要下雨，但是实际上却像夏天那样下起冰雹来。虽然当时是上午，但是天昏地暗，好像黄昏一样。过了一会儿，冰雹又转为大雪。</div>
+    <div class="page-number">— 6 —</div>
+  </div>
+
+  <!-- P8 -->
+  <div class="page" data-page="8">
+    <div class="illustration"><img src="p08.jpg" alt="暴风雪"></div>
+    <div class="chapter-label">第三章 · 暴风雪</div>
+    <div class="story-text">大雪纷飞，遮天蔽日，顿时一片昏暗，不一会儿就分辨不清哪儿是道路哪儿是田野了。寒风刺骨。阿隆找不着路了。风雪交加，使他分不清东西南北。</div>
+    <div class="page-number">— 7 —</div>
+  </div>
+
+  <!-- P9 -->
+  <div class="page" data-page="9">
+    <div class="illustration"><img src="p09.jpg" alt="冰柱山羊"></div>
+    <div class="chapter-label">第三章 · 暴风雪</div>
+    <div class="story-text">兹拉特停住不动了，它再也走不动了。冰柱挂在山羊的白胡子上，羊角上结了一层白霜，发出亮光。阿隆开始乞求上帝保佑自己和这只无辜的山羊。</div>
+    <div class="page-number">— 8 —</div>
+  </div>
+
+  <!-- P10 -->
+  <div class="page" data-page="10">
+    <div class="illustration"><img src="p10.jpg" alt="发现草垛"></div>
+    <div class="chapter-label">第三章 · 暴风雪</div>
+    <div class="story-text">突然，他看到了什么，好像是座小山包。走近一看，他才认出那山包似的雪堆原来是个大草垛，已经完全被积雪覆盖了。</div>
+    <div class="page-number">— 9 —</div>
+  </div>
+
+  <!-- P11 -->
+  <div class="page" data-page="11">
+    <div class="illustration"><img src="p11.jpg" alt="挖洞避难"></div>
+    <div class="chapter-label">第四章 · 草垛中的三天三夜</div>
+    <div class="story-text">阿隆这时才松了一口气：他们有救了。他费了好大劲在积雪中挖出一条通道。他摸到干草以后，替自己和山羊掏出一个藏身的草窝来。</div>
+    <div class="page-number">— 10 —</div>
+  </div>
+
+  <!-- P12 -->
+  <div class="page" data-page="12">
+    <div class="illustration"><img src="p12.jpg" alt="吃草挤奶"></div>
+    <div class="chapter-label">第四章 · 草垛中的三天三夜</div>
+    <div class="story-text">山羊一闻到干草的气味，立即心满意足地吃起来。阿隆发现山羊的双乳鼓鼓的。他躺在山羊旁边，挤出羊奶。山羊的奶又浓又甜。</div>
+    <div class="page-number">— 11 —</div>
+  </div>
+
+  <!-- P13 -->
+  <div class="page" data-page="13">
+    <div class="illustration"><img src="p13.jpg" alt="依偎取暖"></div>
+    <div class="chapter-label">第四章 · 草垛中的三天三夜</div>
+    <div class="story-text">山羊的身体散发着热气，阿隆紧紧地依偎着山羊。透过"窗户"，阿隆可以瞥见外边的灾难景象：风把一股股的雪卷起来，到处一片漆黑。</div>
+    <div class="page-number">— 12 —</div>
+  </div>
+
+  <!-- P14 -->
+  <div class="page" data-page="14">
+    <div class="illustration"><img src="p14.jpg" alt="对话"></div>
+    <div class="chapter-label">第四章 · 草垛中的三天三夜</div>
+    <div class="story-text">"兹拉特，你对我们遇到的这场灾难有什么看法呢？""咩。""如果我们找不到这个干草垛，咱们俩现在早冻僵了。""咩。""我需要你，你也需要我，对吗？""咩。"</div>
+    <div class="page-number">— 13 —</div>
+  </div>
+
+  <!-- P15 -->
+  <div class="page" data-page="15">
+    <div class="illustration"><img src="p15.jpg" alt="入睡"></div>
+    <div class="chapter-label">第四章 · 草垛中的三天三夜</div>
+    <div class="story-text">阿隆瞌睡来了。他用草编成一个枕头，枕在上面，打起盹来。兹拉特也睡着了。</div>
+    <div class="page-number">— 14 —</div>
+  </div>
+
+  <!-- P16 -->
+  <div class="page" data-page="16">
+    <div class="illustration"><img src="p16.jpg" alt="雪停月夜"></div>
+    <div class="chapter-label">第四章 · 草垛中的三天三夜</div>
+    <div class="story-text">第三天晚上，雪停了。天放晴了，月亮升起来了，银色的月光洒在雪地上。到处白茫茫的，静悄悄的。星星又大又密。月亮在天空游泳，就像在海里游泳一样。</div>
+    <div class="page-number">— 15 —</div>
+  </div>
+
+  <!-- P17 -->
+  <div class="page" data-page="17">
+    <div class="illustration"><img src="p17.jpg" alt="雪橇指路"></div>
+    <div class="chapter-label">第五章 · 归家</div>
+    <div class="story-text">第四天早晨，阿隆听到了雪橇的铃声，于是向驾雪橇的农民问路，但问的不是通向镇上找屠夫费夫尔的路，而是回村子的路。</div>
+    <div class="page-number">— 16 —</div>
+  </div>
+
+  <!-- P18 -->
+  <div class="page" data-page="18">
+    <div class="illustration"><img src="p18.jpg" alt="坚定回家"></div>
+    <div class="chapter-label">第五章 · 归家</div>
+    <div class="story-text">阿隆在草垛里已拿定了主意：再也不和兹拉特分开了。他牵着兹拉特走在回村的路上。</div>
+    <div class="page-number">— 17 —</div>
+  </div>
+
+  <!-- P19 -->
+  <div class="page" data-page="19">
+    <div class="illustration"><img src="p19.jpg" alt="全家团圆"></div>
+    <div class="chapter-label">第五章 · 归家</div>
+    <div class="story-text">全家一片欢乐。阿隆的妹妹们又是亲兹拉特，又是拥抱兹拉特。阿隆的母亲也流下了欢喜的泪水。</div>
+    <div class="page-number">— 18 —</div>
+  </div>
+
+  <!-- P20 -->
+  <div class="page" data-page="20">
+    <div class="illustration"><img src="p20.jpg" alt="美餐一顿"></div>
+    <div class="chapter-label">第五章 · 归家</div>
+    <div class="story-text">妹妹们用剁碎的胡萝卜和土豆皮款待兹拉特，兹拉特狼吞虎咽，美餐一顿。从那以后，再没有人提起要卖兹拉特了。</div>
+    <div class="page-number">— 19 —</div>
+  </div>
+
+  <!-- P21 -->
+  <div class="page" data-page="21">
+    <div class="illustration"><img src="p21.jpg" alt="光明节烛光"></div>
+    <div class="chapter-label">第六章 · 从此不再分离</div>
+    <div class="story-text">光明节到来时，阿隆的母亲每晚都做薄煎饼，兹拉特也得到一份。晚上，阿隆、密丽安和安娜玩陀螺，山羊坐在炉旁，或瞧孩子们玩，或对着光明节蜡烛的火苗出神。</div>
+    <div class="page-number">— 20 —</div>
+  </div>
+
+  <!-- P22 -->
+  <div class="page" data-page="22">
+    <div class="illustration"><img src="p22.jpg" alt="结尾定格"></div>
+    <div class="chapter-label">第六章 · 从此不再分离</div>
+    <div class="story-text">阿隆有时问山羊："兹拉特，你还记得我们一块度过的那三天三夜吗？"兹拉特便用犄角搔搔脖子，摇晃着长白胡子的脑袋，发出它那唯一的声音："咩——"</div>
+    <div class="page-number">— 完 —</div>
+  </div>
+
+</div>
+
+<!-- Navigation Bar -->
+<div id="nav-bar">
+  <button class="nav-btn" id="prev-btn" onclick="changePage(-1)">◀ 上一页</button>
+  <span id="page-counter">1 / 22</span>
+  <button class="nav-btn" id="next-btn" onclick="changePage(1)">下一页 ▶</button>
+</div>
+
+<script>
+  let currentPage = 1;
+  const totalPages = 22;
+  const pages = document.querySelectorAll('.page');
+  const prevBtn = document.getElementById('prev-btn');
+  const nextBtn = document.getElementById('next-btn');
+  const counter = document.getElementById('page-counter');
+  const progressBar = document.getElementById('progress-bar');
+
+  function updatePage() {
+    pages.forEach(p => p.classList.remove('active'));
+    const target = document.querySelector(`.page[data-page="${currentPage}"]`);
+    if (target) target.classList.add('active');
+
+    counter.textContent = currentPage + ' / ' + totalPages;
+    prevBtn.disabled = currentPage === 1;
+    nextBtn.disabled = currentPage === totalPages;
+    progressBar.style.width = (currentPage / totalPages * 100) + '%';
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function changePage(dir) {
+    const newPage = currentPage + dir;
+    if (newPage >= 1 && newPage <= totalPages) {
+      currentPage = newPage;
+      updatePage();
+    }
+  }
+
+  // Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') changePage(-1);
+    if (e.key === 'ArrowRight') changePage(1);
+  });
+
+  // Touch swipe support
+  let touchStartX = 0;
+  document.addEventListener('touchstart', (e) => {
+    touchStartX = e.touches[0].clientX;
+  });
+  document.addEventListener('touchend', (e) => {
+    const touchEndX = e.changedTouches[0].clientX;
+    const diff = touchStartX - touchEndX;
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) changePage(1);
+      else changePage(-1);
+    }
+  });
+
+  updatePage();
+</script>
+
+</body>
+</html>
